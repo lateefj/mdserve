@@ -34,7 +34,6 @@ func main() {
   htmlFlags |= blackfriday.HTML_COMPLETE_PAGE
   htmlFlags |= blackfriday.HTML_TOC
 
-  renderer := blackfriday.HtmlRenderer(htmlFlags, "mdserve Markdown http serve", "")
   http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
     input, err := os.Open(file) // For read access.
     if err != nil {
@@ -45,9 +44,10 @@ func main() {
       http.Error(w, fmt.Sprintf("Failed to read file %s", file), http.StatusInternalServerError)
       return
     }
-    output := blackfriday.Markdown(b, renderer, extensions)
     w.WriteHeader(http.StatusOK)
-
+    w.Header().Set("Content-Type", "text/html; charset=utf-8")
+    renderer := blackfriday.HtmlRenderer(htmlFlags, "mdserve Markdown http serve", "")
+    output := blackfriday.Markdown(b, renderer, extensions)
     w.Write(output)
   })
 
